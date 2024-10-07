@@ -30,3 +30,8 @@ class Board:
             table.add_row(line)
         print(table.get_string(border=True, header=False, align="c", hrules=1))
         table.clear()
+    # updating the board with given coordinates and symbol
+    def update(self, row, col, marker):
+        if self.board[row][col] == "-":
+            self.board[row][col] = marker
+            return self.board

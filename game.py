@@ -1,7 +1,6 @@
 from board import Board
 from player import AI, Human
 
-MIN_BOARD_SIZE = 3
 MAX_PLAYERS = 2
 
 class Game:
@@ -66,7 +65,8 @@ class Game:
         current = 0
         # getting User/AI input for move
         while True:
-            players[current].get_turn(board.board)
+            move = players[current].get_turn(board.board)
+            board.update(*move)
             board.display()
             if self.is_player_winner(board.board):
                 print(f"Player {players[current].marker} is winner!")

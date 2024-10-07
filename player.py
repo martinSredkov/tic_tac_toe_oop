@@ -1,5 +1,5 @@
 from abc import ABC
-from random import randint
+from random import choice
 
 SYMBOLS = ["X", "O"]
 
@@ -8,10 +8,8 @@ class Player(ABC):
     marker = ""
     # randomly assign symbol for Human/AI player
     def assign_symbol(self):
-        try:
-            self.marker = SYMBOLS.pop(SYMBOLS.index(SYMBOLS[randint(0, 1)]))
-        except IndexError:
-            self.marker = SYMBOLS[0]
+        self.marker = SYMBOLS.pop(SYMBOLS.index(choice(SYMBOLS)))
+
 
 class Human(Player):
     # validating user input
@@ -31,8 +29,8 @@ class Human(Player):
             col = int(col) - 1
 
             if board[row][col] == "-":
-                board[row][col] = self.marker
-                return board
+                return row, col, self.marker
+            print("Coordinates are occupied! Enter valid coordinates.")
 
 class AI(Player):
     # get move for AI player
@@ -40,5 +38,4 @@ class AI(Player):
         row = int(input()) - 1
         col = int(input()) - 1
         if board[row][col] == "-":
-            board[row][col] = self.marker
-            return board
+            return row, col, self.marker
