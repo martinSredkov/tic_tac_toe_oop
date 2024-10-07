@@ -57,13 +57,10 @@ class Game:
         return player_1, player_2
     # starting the game user inputs for board size and type of players
     def start(self):
-        board_size = input("Enter board size:\n")
-        while not self.validate_input(board_size, MIN_BOARD_SIZE):
-            board_size = input("Enter board size, >= 3:\n")
-        board = Board(board_size)
-        ai_players = input("Enter number of computer players(0-2):")
+        board = Board(input("Enter board size:\n"))
+        ai_players = input("Enter number of computer players(0-2):\n")
         while not self.validate_input(ai_players, 0) or int(ai_players) > MAX_PLAYERS:
-            ai_players = input("Enter valid number of computer players(0-2):")
+            ai_players = input("Enter valid number of computer players(0-2):\n")
         players = self.assign_type(ai_players)
         board.display()
         current = 0
