@@ -20,6 +20,8 @@ class Board:
     # validate input
 
     def validate_input(self, player_input, min_value):
+        if type(player_input) == int:
+            return int(player_input) >= int(min_value)
         return player_input.isdigit() and int(player_input) >= int(min_value)
 
     # draw condition check (are there any empty spaces left)
@@ -31,13 +33,63 @@ class Board:
                     return False
         return True
 
+    # checks for horizontal win
+
+    def horizontal_check(self, board, symbol):
+        win = len(board)
+        for line in board:
+            for el in line:
+                if el != symbol:
+                    win = len(board)
+                    break
+                win -= 1
+                if win == 0:
+                    return True
+
+    # checks for vertical win
+
+    def vertical_check(self, board, symbol):
+        win = self.size
+        for k in range(self.size):
+            for j in range(self.size):
+                if board[j][k] != symbol:
+                    win = self.size
+                    break
+                win -= 1
+                if win == 0:
+                    return True
+
+    # checks for left diagonal win
+
+    def left_diagonal_check(self, board, symbol):
+        win = self.size
+        for l in range(self.size):
+            if board[l][l] != symbol:
+                return False
+            win -= 1
+            if win == 0:
+                return True
+
+    # checks for right diagonal win
+
+    def right_diagonal_check(self, board, symbol):
+        win = self.size
+        for m in range(self.size, 0, - 1):
+            if board[self.size - m][m - 1] != symbol:
+                return  False
+            win -= 1
+            if win == 0:
+                return True
+
     # displaying the board
 
     def display(self):
+        table.clear()
         for line in self.board:
             table.add_row(line)
         print(table.get_string(border=True, header=False, align="c", hrules=1))
-        table.clear()
+        return table.get_string(border=True, header=False, align="c", hrules=1)
+
 
     # updating the board with given coordinates and symbol
 

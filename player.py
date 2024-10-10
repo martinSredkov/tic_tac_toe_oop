@@ -23,7 +23,14 @@ class Human(Player):
         col = input(f"Player {self.symbol}, enter column for your move:\n")
         return [row, col]
 
-
+    def save_win_coordinates(self, board, symbol):
+        with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+            file.write(f"\n")
+        for x in range(len(board)):
+            for y in range(len(board)):
+                if board[x][y] == symbol:
+                    with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+                        file.write(f"{x},{y}\n")
 
 class AI(Player):
 
@@ -32,9 +39,49 @@ class AI(Player):
     def get_turn(self,board):
         print("Computer's turn")
         size = len(board)
-        row = str(randint(0, size - 1))
-        col = str(randint(0, size - 1))
-        while board[int(row)][int(col)] != "-":
-            row = str(randint(0, size - 1))
-            col = str(randint(0, size - 1))
+        row = randint(0, size - 1)
+        col = randint(0, size - 1)
+        while board[row][col] != "-":
+            row = randint(0, size - 1)
+            col = randint(0, size - 1)
         return [row, col]
+
+    def save_win_coordinates(self, board, symbol):
+        with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+            file.write(f"\n")
+        for x in range(len(board)):
+            for y in range(len(board)):
+                if board[x][y] == symbol:
+                    with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+                        file.write(f"{x},{y}\n")
+
+class MonteCarloAI(Player):
+
+    def get_turn(self, board):
+        line = 0
+        with open(f"winning_moves_board_size_{len(board)}.txt", "+r") as file:
+            list_of_moves = file.readlines()
+            size = len(list_of_moves)
+        while line < size:
+            move = [list_of_moves[line]].pop()
+            size -= 1
+            move = move.strip()
+            if move == "":
+                line += 1
+                continue
+            row, col = move.split(",")
+            row = int(row)
+            col = int(col)
+            if board[row][col] != "-":
+                line += 1
+                continue
+            return [row, col]
+
+    def save_win_coordinates(self, board, symbol):
+        with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+            file.write(f"\n")
+        for x in range(len(board)):
+            for y in range(len(board)):
+                if board[x][y] == symbol:
+                    with open(f"winning_moves_board_size_{len(board)}.txt", "+a") as file:
+                        file.write(f"{x},{y}\n")

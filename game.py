@@ -1,6 +1,6 @@
 from random import randint
 from board import Board
-from player import AI, Human
+from player import AI, Human, MonteCarloAI
 
 MAX_PLAYERS = 2
 
@@ -11,71 +11,25 @@ class Game:
     def validate_input(self, player_input, min_value):
         return player_input.isdigit() and int(player_input) >= int(min_value)
 
-    #TODO Optimize
-
-    # checks for horizontal win
-
-    def horizontal_check(self, board, symbol):
-        board_size = len(board)
-        for line in board:
-            for el in line:
-                if el != symbol:
-                    board_size = len(board)
-                    break
-                board_size -= 1
-                if board_size == 0:
-                    return True
-
-    # checks for vertical win
-
-    def vertical_check(self, board, symbol):
-        board_size = len(board)
-        win = board_size
-        for k in range(board_size):
-            for j in range(board_size):
-                if board[j][k] != symbol:
-                    win = board_size
-                    break
-                win -= 1
-                if win == 0:
-                    return True
-
-    # checks for left diagonal win
-
-    def left_diagonal_check(self, board, symbol):
-        board_size = len(board)
-        win = board_size
-        for l in range(board_size):
-            if board[l][l] != symbol:
-                return False
-            win -= 1
-            if win == 0:
-                return True
-
-    # checks for right diagonal win
-
-    def right_diagonal_check(self, board, symbol):
-        board_size = len(board)
-        win = board_size
-        for m in range(board_size, 0, - 1):
-            if board[board_size - m][m - 1] != symbol:
-                return  False
-            win -= 1
-            if win == 0:
-                return True
-
     # assigning player types based on number of AI players
 
     def assign_type(self, ai_count):
+        difficulties = [AI, MonteCarloAI]
         if int(ai_count) == 0:
             player_1 = Human("X")
             player_2 = Human("O")
-        elif int(ai_count) > 1:             #TODO input for AI difficulty
-            player_1 = AI("X")
-            player_2 = AI("O")
         else:
-            player_1 = AI("X")
-            player_2 = Human("O")
+            ai_difficulty = input("Choose computer player difficulty by typing a number:\n1.Easy\n2.Medium\n")
+            while not ai_difficulty.isdigit() or 1 < int(ai_difficulty) > 2:
+                ai_difficulty = input("Type 1 for easy or 2 for medium difficulty:\n")
+            ai_difficulty = int(ai_difficulty)
+
+            if int(ai_count) > 1:
+                player_1 = difficulties[ai_difficulty - 1]("X")
+                player_2 = difficulties[ai_difficulty - 1]("O")
+            else:
+                player_1 = difficulties[ai_difficulty - 1]("X")
+                player_2 = Human("O")
         return player_1, player_2
 
     # starting the game user inputs for board size and type of players
@@ -97,13 +51,14 @@ class Game:
                 move = players[current].get_turn(board.board)
             board.display()
             result = [
-                      self.horizontal_check(board.board, players[current].symbol),
-                      self.vertical_check(board.board, players[current].symbol),
-                      self.left_diagonal_check(board.board, players[current].symbol),
-                      self.right_diagonal_check(board.board, players[current].symbol)
+                      board.horizontal_check(board.board, players[current].symbol),
+                      board.vertical_check(board.board, players[current].symbol),
+                      board.left_diagonal_check(board.board, players[current].symbol),
+                      board.right_diagonal_check(board.board, players[current].symbol)
             ]
             if any(result):
                 print(f"Player {players[current].symbol} is winner!")
+                players[current].save_win_coordinates(board.board, players[current].symbol)
                 exit(0)
             elif board.is_full():
                 print("Draw!")
