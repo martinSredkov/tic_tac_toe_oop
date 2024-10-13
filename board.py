@@ -1,6 +1,5 @@
 from prettytable import PrettyTable
 
-MIN_BOARD_SIZE = 3
 
 table = PrettyTable()
 
@@ -9,20 +8,9 @@ class Board:
     # initialize board with user given size
 
     def __init__(self, size):
-        while not self.validate_input(size, MIN_BOARD_SIZE):
-            size = input("Enter board size, >= 3:\n")
         self.size = int(size)
-        self.board = []
-        for i in range(self.size):
-            self.board.append([])
-            [self.board[i].append("-") for _ in range(self.size)]
+        self.board = [["-" for _ in range(self.size)] for _ in range(self.size)]
 
-    # validate input
-
-    def validate_input(self, player_input, min_value):
-        if type(player_input) == int:
-            return int(player_input) >= int(min_value)
-        return player_input.isdigit() and int(player_input) >= int(min_value)
 
     # draw condition check (are there any empty spaces left)
 
@@ -35,12 +23,12 @@ class Board:
 
     # checks for horizontal win
 
-    def horizontal_check(self, board, symbol):
-        win = len(board)
-        for line in board:
+    def horizontal_check(self, symbol):
+        win = len(self.board)
+        for line in self.board:
             for el in line:
                 if el != symbol:
-                    win = len(board)
+                    win = len(self.board)
                     break
                 win -= 1
                 if win == 0:
@@ -48,11 +36,11 @@ class Board:
 
     # checks for vertical win
 
-    def vertical_check(self, board, symbol):
+    def vertical_check(self, symbol):
         win = self.size
         for k in range(self.size):
             for j in range(self.size):
-                if board[j][k] != symbol:
+                if self.board[j][k] != symbol:
                     win = self.size
                     break
                 win -= 1
@@ -61,10 +49,10 @@ class Board:
 
     # checks for left diagonal win
 
-    def left_diagonal_check(self, board, symbol):
+    def left_diagonal_check(self, symbol):
         win = self.size
         for l in range(self.size):
-            if board[l][l] != symbol:
+            if self.board[l][l] != symbol:
                 return False
             win -= 1
             if win == 0:
@@ -72,13 +60,27 @@ class Board:
 
     # checks for right diagonal win
 
-    def right_diagonal_check(self, board, symbol):
+    def right_diagonal_check(self, symbol):
         win = self.size
         for m in range(self.size, 0, - 1):
-            if board[self.size - m][m - 1] != symbol:
+            if self.board[self.size - m][m - 1] != symbol:
                 return  False
             win -= 1
             if win == 0:
+                return True
+
+    # checks the board with winning conditions
+
+    def win_checker(self, symbol):
+
+        win_checks = [
+            self.horizontal_check,
+            self.vertical_check,
+            self.left_diagonal_check,
+            self.right_diagonal_check
+        ]
+        for check in win_checks:
+            if check(symbol):
                 return True
 
     # displaying the board
@@ -93,12 +95,10 @@ class Board:
 
     # updating the board with given coordinates and symbol
 
-    def update(self, row, col, marker):
-        if self.validate_input(row, 0) and self.validate_input(col, 0):
-            if int(row) < len(self.board) and int(col) < len(self.board):
-                if self.board[int(row)][int(col)] == "-":
-                    self.board[int(row)][int(col)] = marker
-                    return self.board
-                print("Coordinates are occupied.")
-        print("Invalid coordinates.")
+    def update(self, row, col, symbol):
+        if self.board[int(row)][int(col)] == "-":
+            self.board[int(row)][int(col)] = symbol
+            return self.board
+        print("Coordinates are occupied.")
         return False
+
