@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from random import randint
 from utils import inp
 from board import Board
@@ -47,50 +48,52 @@ class MonteCarloAI(Player):
         super().__init__(symbol)
         self.board_size = board_size
         self.diff_level = diff_level
-        self.win_move_counter = self.get_best_moves()
 
-    # get best move for MonteCarloAI, play diff_level number of games and evaluates best moves
 
-    def get_best_moves(self):
-        win_move_counter = [[0 for _ in range(self.board_size)] for _ in range(self.board_size)]
+    # get best move for MonteCarloAI, play diff_level number of games and evaluate best moves
+
+    def get_best_moves(self, board):
+        move_score_board = [[0 for _ in range(self.board_size)] for _ in range(self.board_size)]
         for _ in range(self.diff_level):
-            board = Board(self.board_size)
+            temp_board = Board(self.board_size)
+            temp_board.board = deepcopy(board)
             players = [AI("X"), AI("O")]
             current = 0
             is_winner = False
 
-            while not is_winner:
-                move = players[current].get_turn(board.board)
-                while not board.update(move[0], move[1], players[current].symbol):
-                    move = players[current].get_turn(board.board)
 
-                if board.win_checker(players[current].symbol):
+            while not is_winner:
+                move = players[current].get_turn(temp_board.board)
+                while not temp_board.update(move[0], move[1], players[current].symbol):
+                    move = players[current].get_turn(temp_board.board)
+
+                if temp_board.win_checker(players[current].symbol):
                     is_winner = True
                     for i in range(self.board_size):
                         for j in range(self.board_size):
-                            if board.board[i][j] == players[current].symbol:
-                                win_move_counter[i][j] += 1
+                            if temp_board.board[i][j] == self.symbol:
+                                move_score_board[i][j] += 1
                             else:
-                                win_move_counter[i][j] -= 1
+                                move_score_board[i][j] -= 1
                     break
 
-                if board.is_full():
+                if temp_board.is_full():
                     break
 
                 current = 1 - current
 
-        return win_move_counter
+        return move_score_board
 
     # get move for MonteCarloAI based on the get_best_moves method, play random move if no matches are found
 
     def get_turn(self, board):
         max_value = -inf
         row, col = -1, -1
-
+        best_moves = self.get_best_moves(board)
         for i in range(self.board_size):
             for j in range(self.board_size):
-                if board[i][j] == "-" and self.win_move_counter[i][j] > max_value:
-                    max_value = self.win_move_counter[i][j]
+                if board[i][j] == "-" and best_moves[i][j] > max_value:
+                    max_value = best_moves[i][j]
                     row, col = i, j
 
         if row == -1 and col == -1:

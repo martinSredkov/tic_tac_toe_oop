@@ -1,6 +1,6 @@
 from random import randint
 from board import Board
-from player import AI, Human, MonteCarloAI
+from player import Human, MonteCarloAI
 from utils import inp
 from math import inf
 
@@ -52,3 +52,5 @@ class Game:
             current += 1
             if current > 1:
                 current = 0
+
+
