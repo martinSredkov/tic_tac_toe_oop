@@ -49,6 +49,8 @@ class MonteCarloAI(Player):
         self.diff_level = diff_level
         self.win_move_counter = self.get_best_moves()
 
+    # get best move for MonteCarloAI, play diff_level number of games and evaluates best moves
+
     def get_best_moves(self):
         win_move_counter = [[0 for _ in range(self.board_size)] for _ in range(self.board_size)]
         for _ in range(self.diff_level):
@@ -79,8 +81,10 @@ class MonteCarloAI(Player):
 
         return win_move_counter
 
+    # get move for MonteCarloAI based on the get_best_moves method, play random move if no matches are found
+
     def get_turn(self, board):
-        max_value = -1
+        max_value = -inf
         row, col = -1, -1
 
         for i in range(self.board_size):
