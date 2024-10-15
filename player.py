@@ -23,8 +23,8 @@ class Human(Player):
     # get move for Human player
 
     def get_turn(self, board):
-        row = inp(-1,len(board),f"Player {self.symbol}, enter row for your move:\n", "Invalid row, try again:\n")
-        col = inp(-1,len(board),f"Player {self.symbol}, enter column for your move:\n", "Invalid column, try again:\n")
+        row = inp(0,len(board),f"Player {self.symbol}, enter row for your move:\n", "Invalid row, try again:\n")
+        col = inp(0,len(board),f"Player {self.symbol}, enter column for your move:\n", "Invalid column, try again:\n")
         return [row, col]
 
 

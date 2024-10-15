@@ -14,7 +14,7 @@ class Game:
             player_1 = Human("X")
             player_2 = Human("O")
         else:
-            ai_difficulty = inp(0, inf,"Choose computer player difficulty by typing a number:\n", "Type a positive number:\n")
+            ai_difficulty = inp(1, inf,"Choose computer player difficulty by typing a number:\n", "Type a positive number:\n")
             if ai_count > 1:
                 player_1 = MonteCarloAI(ai_difficulty, board_size, "X")
                 player_2 = MonteCarloAI(ai_difficulty, board_size, "O")
@@ -26,8 +26,8 @@ class Game:
     # starting the game, user inputs for board size and type of players
 
     def start(self):
-        board = Board(inp(2,inf, "Enter board size:\n", "Enter board size, >= 3:\n"))
-        ai_players = inp(-1, 3,"Enter number of computer players(0-2):\n","Enter valid number of computer players(0-2):\n")
+        board = Board(inp(3,inf, "Enter board size:\n", "Enter board size, >= 3:\n"))
+        ai_players = inp(0, 3,"Enter number of computer players(0-2):\n","Enter valid number of computer players(0-2):\n")
         players = self.assign_type(ai_players, len(board.board))
         board.display()
         current = randint(0, 1)
@@ -49,8 +49,6 @@ class Game:
                 exit(0)
 
             # switching player
-            current += 1
-            if current > 1:
-                current = 0
+            current = 1 - current
 
 
