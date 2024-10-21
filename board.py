@@ -11,6 +11,8 @@ class Board:
         self.size = int(size)
         self.board = [["-" for _ in range(self.size)] for _ in range(self.size)]
 
+    def set_players(self, players):
+        self.players = players
 
     # draw condition check (are there any empty spaces left)
 
@@ -24,15 +26,15 @@ class Board:
     # checks for horizontal win
 
     def horizontal_check(self, symbol):
-        win = len(self.board)
         for line in self.board:
+            win = len(self.board)
             for el in line:
                 if el != symbol:
-                    win = len(self.board)
                     break
                 win -= 1
                 if win == 0:
                     return True
+        return False
 
     # checks for vertical win
 
