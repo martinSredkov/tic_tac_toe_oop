@@ -4,6 +4,7 @@ from random import randint
 from utils import inp
 from board import Board
 from math import inf
+import operator
 
 SYMBOLS = ["X", "O"]
 
@@ -100,6 +101,12 @@ class MonteCarloAI(Player):
 
 class MinMax(Player):
 
+    def __init__(self, symbol):
+        super().__init__(symbol)
+        self.memo = {}
+        self.symmetry_hashes = set()
+
+    # get all possible moves in board's current state
     def get_possible_moves(self, board):
         possible_moves = []
         for i in range(board.size):
@@ -108,40 +115,84 @@ class MinMax(Player):
                     possible_moves.append([i, j])
         return possible_moves
 
+    # flatten board
+    def hash_func(self, board):
+        return ''.join(''.join(row) for row in board)
 
-    def get_best_move(self, board, moves, turn):
+    # rotating the board 90 degrees clockwise
+    def rotate_board(self, board):
+        return [list(reversed(col)) for col in zip(*board)]
+
+    # mirror board's current state
+    def mirror_board(self, board_matrix):
+        return [row[::-1] for row in board_matrix]
+
+    # generate all possible symmetrical states for current board's state
+    def generate_symmetrical_states(self, board):
+        sym_hashes = set()
+        current_board = board.board
+
+        sym_hashes.add(self.hash_func(current_board))
+        sym_hashes.add(self.hash_func(self.mirror_board(current_board)))
+
+        for _ in range(3):
+            current_board = self.rotate_board(current_board)
+            sym_hashes.add(self.hash_func(current_board))
+
+        return sym_hashes
+
+    # check current board's state for symmetries
+    def is_symmetric(self, board):
+        return any(hash_state in self.symmetry_hashes for hash_state in self.generate_symmetrical_states(board))
+
+    # get best move by ranking all possible moves recursively and taking the best score
+    def get_best_move(self, board, moves, turn, alpha=-inf, beta=inf):
+        other = SYMBOLS[SYMBOLS.index(self.symbol) - 1]
+        board_hash = self.hash_func(board.board)
+
+        if board_hash in self.memo:
+            return self.memo[board_hash]
+
+        if self.is_symmetric(board):
+            if board_hash in self.generate_symmetrical_states(board):
+                return board_hash
+
         if board.is_full():
             return 0, None
         if board.win_checker(self.symbol):
             return 1, None
-        elif board.win_checker(SYMBOLS[SYMBOLS.index(self.symbol) - 1]):
-            return - 1, None
+        elif board.win_checker(other):
+            return -1, None
 
         best_move = None
-        if turn:
-            best_score = -inf
-        else:
-            best_score = inf
+        best_score = -inf if turn else inf
 
         for move in moves:
-            if turn:
-                board.board[move[0]][move[1]] = self.symbol
-            else:
-                board.board[move[0]][move[1]] = SYMBOLS[SYMBOLS.index(self.symbol) - 1]
-            score, _ = self.get_best_move(board, self.get_possible_moves(board), not turn)
+            board.board[move[0]][move[1]] = self.symbol if turn else other
+            score, _ = self.get_best_move(board, self.get_possible_moves(board), not turn, alpha, beta)
             board.board[move[0]][move[1]] = "-"
 
             if turn:
-                if score >= best_score:
-                    best_score = score
-                    best_move = move
+                if score > best_score:
+                    best_score, best_move = score, move
+                alpha = max(alpha, best_score)
+                if beta <= alpha:
+                    break
             else:
-                if score <= best_score:
-                    best_score = score
-                    best_move = move
+                if score < best_score:
+                    best_score, best_move = score, move
+                beta = min(beta, best_score)
+                if beta <= alpha:
+                    break
 
+        self.memo[board_hash] = (best_score, best_move)
         return best_score, best_move
 
+    # get turn method that sets the first move to the middle of the board
     def get_turn(self, board):
-        _, best_move = self.get_best_move(board, self.get_possible_moves(board), True)
+        moves = self.get_possible_moves(board)
+        if len(moves) == board.size * board.size:
+            return [board.size // 2, board.size // 2]
+        best_score, best_move = self.get_best_move(board, moves, True)
         return best_move
+

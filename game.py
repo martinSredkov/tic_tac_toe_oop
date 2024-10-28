@@ -15,18 +15,12 @@ class Game:
             player_2 = Human("O")
         else:
             ai_difficulty = inp(1, inf,"Choose computer player difficulty by typing a number:\n", "Type a positive number:\n")
-            if ai_difficulty > 5000 and ai_count > 1:
+            if ai_difficulty > 5000:
                 player_1 = MinMax("X")
-                player_2 = MinMax("O")
-            elif ai_difficulty > 5000 and ai_count == 1:
-                player_1 = MinMax("X")
-                player_2 = Human("O")
-            elif ai_difficulty < 5000 and ai_count > 1:
+                player_2 = MinMax("O") if ai_count > 1 else Human("O")
+            else:
                 player_1 = MonteCarloAI(ai_difficulty, board_size, "X")
-                player_2 = MonteCarloAI(ai_difficulty, board_size, "O")
-            elif ai_difficulty < 5000 and ai_count == 1:
-                player_1 = MonteCarloAI(ai_difficulty, board_size, "X")
-                player_2 = Human("O")
+                player_2 = MonteCarloAI(ai_difficulty, board_size, "O") if ai_count > 1 else Human("O")
         return player_1, player_2
 
     # starting the game, user inputs for board size and type of players
